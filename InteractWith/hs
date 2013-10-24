@@ -1,0 +1,15 @@
+ Volume in drive C has no label.
+ Volume Serial Number is 3EA0-A2DD
+
+ Directory of c:\source\haskell\InteractWith
+
+10/18/2013  05:51 PM    <DIR>          .
+10/18/2013  05:51 PM    <DIR>          ..
+10/18/2013  05:05 PM               634 FirstWordOfEachLine.hs
+10/18/2013  05:51 PM                 0 hs
+10/18/2013  02:58 PM               436 InteractWith.hs
+10/18/2013  05:05 PM                39 out.txt
+10/18/2013  04:56 PM                75 samplefile.txt
+10/18/2013  05:15 PM               643 TransposeLines.hs
+               6 File(s)          1,827 bytes
+               2 Dir(s)  88,110,682,112 bytes free
