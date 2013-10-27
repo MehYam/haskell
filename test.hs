@@ -43,7 +43,7 @@ treeHeight :: Tree a -> Integer
 treeHeight Empty = 0
 treeHeight (Node a left right) = 1 + max (treeHeight left) (treeHeight right)
 
-data Direction = DirStraight | DirLeft | DirRight deriving (Show, Eq)
+data Direction = DirLeft | DirStraight | DirRight deriving (Read, Show, Eq, Ord)
 data Point a = Point a a deriving (Show, Eq)
 
 
@@ -163,4 +163,29 @@ words1 = foldr step [] where
 unlines1 :: [String] -> String
 unlines1 = foldr step [] where
 	step x acc = x ++ "\n" ++ acc
+
+
+---- typeclasses
+
+class MyEq a where
+	isEqual :: a -> a -> Bool
+
+instance MyEq Bool where
+	isEqual True True = True
+	isEqual False False = True
+	isEqual _ _ = False	
+
+class MyEq2 a where -- shows how you can provide actual implementations in the typeclass definition
+	isEqual2 :: a -> a -> Bool
+	isEqual2 a b = not $ notEqual2 a b
+
+	notEqual2 :: a -> a -> Bool
+	notEqual2 a b = not $ isEqual2 a b
+
+instance MyEq2 Bool where
+	isEqual2 True True = True
+	isEqual2 False False = True
+	isEqual2 _ _ = False	
+
+
 
