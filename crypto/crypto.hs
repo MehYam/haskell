@@ -7,7 +7,10 @@ import Numeric
 
 -- xor two lists of bytes, can be used for OTP
 crypt :: [Int] -> [Int] -> [Int]
-crypt m k = zipWith xor m k
+crypt = zipWith xor
+
+cryptS :: String -> String -> [Int]
+cryptS k m = crypt (stringToOrds k) (stringToOrds m)
 
 -- convert string to byte list
 stringToOrds :: String -> [Int]
@@ -15,7 +18,7 @@ stringToOrds = map ord
 
 -- convert byte list to string - for debugging, won't work for all byte lists obviously
 ordsToString :: [Int] -> String
-ordsToString = map chr 
+ordsToString = map (\x -> if x >= 32 && x < 120 then chr x else '~') 
 
 -- convert hex string to byte list
 hexToOrds :: String -> [Int]
@@ -30,6 +33,15 @@ ordsToHex (x:xs) = toHex x ++ ordsToHex xs
 	where toHex x
 		| x < 16 = '0' : (showHex x "")
 		| otherwise = showHex x ""
+
+-- given a list of ordinals that's the subtraction of two stream-encrypted strings, point out some likely chars
+crack :: Int -> Char
+crack x
+    | (x == 0) = '*'
+	| (x >= 65 && x <= 90) = chr(ord ' ' + x)
+	| otherwise = '-'
+
+mcrack = map crack
 
 -- week 1 Question 7
 
@@ -55,3 +67,48 @@ cn10 = hexToOrds "466d06ece998b7a2fb1d464fed2ced7641ddaa3cc31c9941cf110abbf409ed
 ctarget = hexToOrds "32510ba9babebbbefd001547a810e67149caee11d945cd7fc81a05e9f85aac650e9052ba6a8cd8257bf14d13e6f0a803b54fde9e77472dbff89d71b57bddef121336cb85ccb8f3315f4b52e301d16e9f52f904"
 
 cs = [cn1, cn2, cn3, cn4, cn5, cn6, cn7, cn8, cn9, cn10, ctarget]
+
+cryptAll vs = map (\c -> crypt c vs) cs
+
+-- do:
+-- cryptAll
+-- map mcrack it
+-- then: mapM_ putStrLn $ it
+
+-- rebuild the key into 'key'
+extractByte fmtChar cipherChar
+	| fmtChar == '*' = 0
+	| fmtChar == '_' = xor (ord ' ') cipherChar
+	| otherwise = xor (ord fmtChar) cipherChar
+
+extractBytes = zipWith extractByte
+
+-- these were filled in over time by hand
+kt = extractBytes "the_secret_message_is:_when_using_a_stream_cipher,_never_use_the_key_more_than_once" ctarget
+k1 = extractBytes "we_can_******_***_******_***with_quantum_*********._We can_also_factor_the_number_1********************************************************" cn1
+k2 = extractBytes "euler_would_probably_*****_****_*******_*******_*********_******_*****_**_******_*_**********_******************" cn2
+k3 = extractBytes "***_****_*****_*****_*******_**_***_**_**************_***_*****_*_***_**_*****_****_*_*********" cn3
+
+x1 = zipWith max kt k1
+x2 = zipWith max x1 k2
+x3 = zipWith max x2 k3
+
+key = x3
+
+-- same as "crypt", but skips over unknown bytes in the key
+decrypt :: [Int] -> [Int] -> [Int]
+decrypt = zipWith (\x y -> if x == 0 then 0 else xor x y)
+
+-----------------------------------------------------------------------------
+ktest = stringToOrds  "l;akjdsf.wer;wnme.sdfSDFSASDFSADFsdfasD.SDFSi.wermgSDF@#$SDF.SAxDFS.DFSGDC.GSDFGS.DFGDF.Gdfgd.fgsdfgsdfg"
+
+--alpha = ['a'..'z'] ++ ['A'..'Z'] ++ ['!'..'/']
+alpha = ['a'..'z']
+alphaO = stringToOrds alpha
+
+spaces = take (length alpha) $ repeat ' '
+spacesO = stringToOrds spaces
+
+calpha = crypt ktest alphaO
+cspaces = crypt ktest spacesO
+
