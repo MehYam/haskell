@@ -11,29 +11,24 @@ Some code that performs the building blocks of OTP
 testm = "this is a test message"
 testk = "foodadoosdfsdfsdfsdfsd"
 
-ordsm = toOrds testm
-ordsk = toOrds testk
+ordsm = stringToOrds testm
+ordsk = stringToOrds testk
 
--- do the OTP (encrypt ordsm ordsk)
-encrypt :: [Int] -> [Int] -> [Int]
-encrypt m k = zipWith xor m k
+-- xor two lists of bytes, can be used for OTP
+crypt :: [Int] -> [Int] -> [Int]
+crypt m k = zipWith xor m k
 
--- convert string to ords
-toOrds :: String -> [Int]
-toOrds x = map ord x
+-- convert string to byte list
+stringToOrds :: String -> [Int]
+stringToOrds = map ord
 
--- convert hex string to [Int]
---toHexString :: [Int] -> String
---toHexString [] = []
---toHexString x:y:xs = hexDigit ++
+-- convert byte list to string
+ordsToString :: [Int] -> String
+ordsToString = map chr 
 
---	readHex $ take 2 xs 
---foo :: String -> [Int]
-foo [] = []
-foo (x:y:xs) = digit : foo xs	
+-- convert hex string to byte list
+hexToOrds :: String -> [Int]
+hexToOrds [] = []
+hexToOrds (x:y:xs) = digit : hexToOrds xs	
 	where ((digit, _):_) = readHex([x, y])
 
-
-((digit, _):_) = readHex(['a', 'b'])
-
--- convert [Int] to string
